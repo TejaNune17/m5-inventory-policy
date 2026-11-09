@@ -30,6 +30,7 @@ def reconcile(res: dict[str, float]) -> list[tuple[str, float, float, bool]]:
 def main() -> None:
     cfg = load_config()
     con = connect(cfg)
+    con.execute("SET preserve_insertion_order = true")   # report rows keep the order the checks are written in
     run_sql_file(con, ROOT / "sql" / "01_data_quality.sql", cfg["dq"])
     df = con.execute("SELECT * FROM dq_results").df()
     span = con.execute("SELECT min(date), max(date), count(*) FROM fact_sales GROUP BY item_id, store_id LIMIT 1").fetchone()

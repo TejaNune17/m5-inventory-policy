@@ -103,10 +103,13 @@ UNION ALL SELECT '6 zero runs', 'trailing zero days, total',
 UNION ALL SELECT '7 zero share', 'share of zero-sales days, all categories (post-launch)',
        (SELECT avg(CASE WHEN units = 0 THEN 1.0 ELSE 0.0 END) FROM v_sales_clean), 'informs metric choice (no MAPE)'
 UNION ALL
-SELECT '7 zero share', 'share of zero-sales days, ' || i.cat_id || ' (post-launch)',
-       avg(CASE WHEN s.units = 0 THEN 1.0 ELSE 0.0 END), 'informs metric choice (no MAPE)'
-FROM v_sales_clean s JOIN dim_item i USING (item_id)
-GROUP BY i.cat_id
+SELECT * FROM (
+    SELECT '7 zero share', 'share of zero-sales days, ' || i.cat_id || ' (post-launch)',
+           avg(CASE WHEN s.units = 0 THEN 1.0 ELSE 0.0 END), 'informs metric choice (no MAPE)'
+    FROM v_sales_clean s JOIN dim_item i USING (item_id)
+    GROUP BY i.cat_id
+    ORDER BY i.cat_id
+)
 -- 8. Price outliers ---------------------------------------------------------------
 UNION ALL SELECT '8 price outliers', 'week-over-week price change > ${price_change_threshold} (rows)',
        (SELECT count(*) FROM price_changes WHERE abs(pct_change) > ${price_change_threshold})::DOUBLE,

@@ -48,9 +48,9 @@ Sales date range: 2011-01-29 to 2016-05-22 (1,941 days per series).
 | 6 zero runs | trailing zero runs (no sale after run start until d_last) | 14,806 | kept as zero demand |
 | 6 zero runs | trailing zero days, total | 125,866 | kept as zero demand |
 | 7 zero share | share of zero-sales days, all categories (post-launch) | 59.53% | informs metric choice (no MAPE) |
+| 7 zero share | share of zero-sales days, FOODS (post-launch) | 51.00% | informs metric choice (no MAPE) |
 | 7 zero share | share of zero-sales days, HOBBIES (post-launch) | 71.46% | informs metric choice (no MAPE) |
 | 7 zero share | share of zero-sales days, HOUSEHOLD (post-launch) | 64.49% | informs metric choice (no MAPE) |
-| 7 zero share | share of zero-sales days, FOODS (post-launch) | 51.00% | informs metric choice (no MAPE) |
 | 8 price outliers | week-over-week price change > 0.5 (rows) | 6,666 | flagged; kept (promotions and corrections are real prices) |
 | 8 price outliers | week-over-week price change > 0.5 (distinct series) | 2,695 | flagged; kept |
 
