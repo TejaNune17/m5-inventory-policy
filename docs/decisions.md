@@ -19,6 +19,8 @@ A series' first day with units > 0 is its launch. Earlier days are excluded (`v_
 - ABC uses inclusive cumulative revenue share after sorting by revenue descending, ties broken by item_id then store_id. Series with zero revenue in the window are C.
 - XYZ uses the population standard deviation (ddof = 0) of weekly units. Weeks are 7-day buckets counted from the window start, not Walmart weeks, so all 52 are complete. Series with zero mean are Z.
 - Python and SQL compute this independently; `segment.py` fails if they disagree on any series.
+- CV is rounded to 10 decimals in both before classifying. The first run disagreed on 2 series whose CV was exactly 0.5 or 1.0; SQL and pandas differed in the last floating-point bit. Rounding makes boundary ties classify identically.
+- No ABC-XYZ cell is empty with the spec thresholds, so they were not changed.
 
 ## D5. Sample
 - Eligible: launched on or before the segmentation window start (d_1214) and sold at least one unit in the window. This guarantees at least 280 days of history before the first LightGBM origin.
