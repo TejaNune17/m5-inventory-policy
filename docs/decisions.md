@@ -43,6 +43,8 @@ A series' first day with units > 0 is its launch. Earlier days are excluded (`v_
 - P2 sigma_d is the population std of the daily out-of-sample LightGBM errors over the 3 prior blocks. It is a std, not RMSE, so forecast bias is not added to safety stock.
 - Lead-time draws use one RNG stream per series (`default_rng([42, series_idx])`), the same for every policy.
 - Total cost = holding + ordering + lost margin. Orders placed near the end of the window incur order cost even if they arrive after it.
+- P0 is left as specified even where it breaks: a series with no sales in the trailing 90 days gets d_bar = 0, so Q = 1 and ROP = 0. This is the naive rule's real failure mode on erratic items, so it is kept rather than patched.
+- With the assumed $20 order cost and low unit costs, EOQ yields few orders per series per year. Cycle service level is therefore measured on few cycles per series; pooled CSL across series is reported, not per-series CSL.
 
 ## D8. Marts for Power BI
 Mart CSVs are written to `powerbi/data/` and committed, so the dashboard can be built without rerunning the pipeline.
