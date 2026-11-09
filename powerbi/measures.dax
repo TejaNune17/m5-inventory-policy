@@ -1,0 +1,73 @@
+// Power BI measures. Tables are the CSVs in powerbi/data/ loaded with the same names.
+// Every measure re-aggregates from sums, so it stays correct under any slicer combination.
+
+// ---------- Simulation: mart_policy_results ----------
+
+Units Demanded = SUM ( mart_policy_results[units_demanded] )
+
+Units Sold = SUM ( mart_policy_results[units_sold] )
+
+// Fill rate = units sold / units demanded (pooled across series, not an average of ratios)
+Fill Rate = DIVIDE ( [Units Sold], [Units Demanded] )
+
+// Cycle service level = order cycles with no lost sales / evaluated order cycles
+Cycle Service Level =
+DIVIDE ( SUM ( mart_policy_results[cycles_ok] ), SUM ( mart_policy_results[cycles_evaluated] ) )
+
+// Total days with lost sales, summed over series
+Stockout Days = SUM ( mart_policy_results[stockout_days] )
+
+// Sum over series of each series' average on-hand value = average total inventory value
+Avg Inventory Value = SUM ( mart_policy_results[avg_inventory_value] )
+
+Holding Cost = SUM ( mart_policy_results[holding_cost] )
+
+Order Cost = SUM ( mart_policy_results[order_cost] )
+
+Lost Margin = SUM ( mart_policy_results[lost_margin] )
+
+Lost Sales Value = SUM ( mart_policy_results[lost_sales_value] )
+
+// Total cost = holding + ordering + lost margin
+Total Cost = [Holding Cost] + [Order Cost] + [Lost Margin]
+
+Cost per Unit Sold = DIVIDE ( [Total Cost], [Units Sold] )
+
+// Total cost relative to P0 naive under the same filters (scenario, segment, category)
+Cost Delta vs Naive % =
+VAR naive =
+    CALCULATE ( [Total Cost], mart_policy_results[policy] = "P0_naive" )
+RETURN
+    DIVIDE ( [Total Cost] - naive, naive )
+
+// ---------- Forecast accuracy: mart_forecast_accuracy ----------
+
+// WAPE = sum |actual - forecast| / sum actual
+WAPE =
+DIVIDE ( SUM ( mart_forecast_accuracy[sum_abs_err] ), SUM ( mart_forecast_accuracy[sum_actual] ) )
+
+// Bias = sum (forecast - actual) / sum actual; positive = over-forecast
+Bias =
+DIVIDE ( SUM ( mart_forecast_accuracy[sum_err] ), SUM ( mart_forecast_accuracy[sum_actual] ) )
+
+// MASE = mean of series-fold MASE (blank where undefined)
+MASE = AVERAGE ( mart_forecast_accuracy[mase] )
+
+// ---------- What-if parameter ----------
+// Modeling > New parameter > Numeric range, name "Target SL", values from the sweep:
+// 0.85, 0.90, 0.925, 0.95, 0.97, 0.98, 0.99, 0.995. Power BI creates 'Target SL'[Target SL Value].
+// Use it to filter the service-level scenarios:
+
+Selected SL Total Cost =
+CALCULATE (
+    [Total Cost],
+    mart_policy_results[scenario_kind] = "service_level",
+    TREATAS ( VALUES ( 'Target SL'[Target SL] ), mart_policy_results[scenario_service_level] )
+)
+
+Selected SL Fill Rate =
+CALCULATE (
+    [Fill Rate],
+    mart_policy_results[scenario_kind] = "service_level",
+    TREATAS ( VALUES ( 'Target SL'[Target SL] ), mart_policy_results[scenario_service_level] )
+)
